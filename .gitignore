@@ -1,0 +1,22 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Local runtime artifacts
+airflow/airflow.cfg
+airflow/airflow.db
+airflow/*.err
+airflow/*.log
+airflow/*.out
+airflow/*.pid
+airflow/logs/
+
+# Generated data and reports
+data/
+outputs/
+
+# Nested/accidental repository metadata
+SocialMedia_Threat_Intel/

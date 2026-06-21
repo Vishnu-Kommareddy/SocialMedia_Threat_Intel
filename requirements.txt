@@ -1,0 +1,14 @@
+apache-airflow
+langchain-core
+langchain-openai
+networkx
+pandas
+plotly
+psycopg2-binary
+python-dotenv
+scikit-learn
+sqlalchemy
+streamlit
+tqdm
+transformers
+tweepy
