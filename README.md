@@ -2,7 +2,9 @@
 
 Cyber threat intelligence pipeline that collects cybersecurity-related social posts, classifies threats using rule-based and Hugging Face zero-shot models, builds an entity relationship network, generates LLM-powered summaries, and visualizes everything in a Streamlit dashboard.
 
-📄 **Published Paper:** [ICCFN 2025 — Network Slice Security & Threat Intelligence](./papers/ICCFN_2025_paper_5806.pdf)
+## 📄 Publications
+
+- **[ICCFN 2025 — Network Slice Security & Threat Intelligence](./papers/ICCFN_2025_paper_5806.pdf)**: This paper explores security challenges in network slicing orchestration within cloud-native 5G/6G infrastructures and presents a threat intelligence framework for detecting and classifying cyber threats in virtualized network environments.
 
 ## Architecture
 
