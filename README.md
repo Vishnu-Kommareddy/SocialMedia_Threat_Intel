@@ -2,6 +2,8 @@
 
 Cyber threat intelligence pipeline that collects cybersecurity-related social posts, classifies threats using rule-based and Hugging Face zero-shot models, builds an entity relationship network, generates LLM-powered summaries, and visualizes everything in a Streamlit dashboard.
 
+📄 **Published Paper:** [ICCFN 2025 — Network Slice Security & Threat Intelligence](./papers/ICCFN_2025_paper_5806.pdf)
+
 ## Architecture
 
 ```
