@@ -1,51 +1,44 @@
 # =====================================
-# dashboard_cyber_intel_auto.py ✅ FINAL SCHEMA-FLEXIBLE VERSION
+# dashboard.py — Cyber Threat Intelligence Dashboard
 # =====================================
 
 import os
-import platform
+from pathlib import Path
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 from sqlalchemy import create_engine, text
-from dotenv import load_dotenv
 import streamlit.components.v1 as components
-import subprocess
+
+from config import PROJECT_ROOT, DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME
+
+OUTPUT_DIR = PROJECT_ROOT / "outputs"
+NETWORK_DIR = OUTPUT_DIR / "network"
 
 # ╭──────────────────────────────────────────────╮
-# │ 1️⃣ BASE PATHS + AUTO HOST DETECTION         │
+# │ 1️⃣ Database connection (graceful if missing) │
 # ╰──────────────────────────────────────────────╯
-if platform.system() == "Windows":
-    BASE_DIR = r"C:\Users\vishn\Downloads\Shift\Programming\code+lab\SocialMedia_Threat_Intel"
-    DB_HOST_FALLBACK = "localhost"
-else:
-    BASE_DIR = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel"
+engine = None
+if all([DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]):
     try:
-        route_output = subprocess.check_output("ip route | grep default", shell=True).decode()
-        DB_HOST_FALLBACK = route_output.split("via")[1].split()[0].strip()
-    except Exception:
-        DB_HOST_FALLBACK = "localhost"
+        engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        st.warning(f"⚠️ Database unavailable: {e}")
+        engine = None
 
-ENV_PATH = os.path.join(BASE_DIR, ".env")
-load_dotenv(ENV_PATH)
-
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST") or DB_HOST_FALLBACK
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-
-engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
 def read_sql_compat(query: str) -> pd.DataFrame:
+    if engine is None:
+        return pd.DataFrame()
     try:
         with engine.connect() as conn:
             result = conn.execute(text(query))
             df = pd.DataFrame(result.fetchall(), columns=result.keys())
             df.columns = [c.lower() for c in df.columns]
             return df
-    except Exception as e:
-        st.error(f"❌ SQL Read Error: {e}")
+    except Exception:
         return pd.DataFrame()
 
 # ╭──────────────────────────────────────────────╮
@@ -101,8 +94,7 @@ with tab1:
 with tab2:
     st.subheader("🕸️ Threat-Entity Network")
 
-    NETWORK_DIR = os.path.join(BASE_DIR, "outputs", "network")
-    html_path = os.path.join(NETWORK_DIR, "threat_network.html")
+    html_path = NETWORK_DIR / "threat_network.html"
 
     nodes_df = read_sql_compat("SELECT * FROM cyber_threat_nodes LIMIT 50;")
     edges_df = read_sql_compat("SELECT * FROM cyber_threat_edges LIMIT 100;")

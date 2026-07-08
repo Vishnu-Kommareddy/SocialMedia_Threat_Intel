@@ -5,19 +5,21 @@ Real evaluation script for your CTI pipeline.
 - Compares rule-based labels vs zero-shot labels from two CSVs
 - Prints precision, recall, F1-score, and a classification report
 
-Adjust COLUMN NAMES below if your files differ.
+Run from project root: python evaluation.py
 """
 
 import pandas as pd
 from sklearn.metrics import precision_score, recall_score, f1_score, classification_report
 
+from config import OUTPUT_DIR
+
 # ============
 # CONFIG
 # ============
 
-# Paths to your CSVs (adjust if needed)
-RULE_BASED_CSV = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel/outputs/cyber_tweets_classified.csv"
-HF_RESULTS_CSV = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel/outputs/cyber_tweets_hf_results.csv"
+# Paths to your CSVs (relative to project root)
+RULE_BASED_CSV = OUTPUT_DIR / "cyber_tweets_classified.csv"
+HF_RESULTS_CSV = OUTPUT_DIR / "cyber_tweets_hf_results.csv"
 
 # Column names (change here if your headers differ)
 TWEET_ID_COL = "tweet_id"

@@ -1,52 +1,18 @@
 import os
-import platform
+import re
 import pandas as pd
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import re, subprocess
+
+from config import DATA_DIR, OUTPUT_DIR, DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME
+
 
 # ─────────────────────────────
-# 1️⃣  Base path (Windows ↔ WSL aware)
+# 1️⃣  Data directories
 # ─────────────────────────────
-if platform.system() == "Windows":
-    BASE_DIR = r"C:\Users\vishn\Downloads\Shift\Programming\code+lab\SocialMedia_Threat_Intel"
-else:
-    BASE_DIR = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel"
-
-DATA_DIR = os.path.join(BASE_DIR, "data")
-OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ─────────────────────────────
-# 2️⃣  Load environment variables
-# ─────────────────────────────
-env_path = os.path.join(BASE_DIR, ".env")
-if not os.path.exists(env_path):
-    raise FileNotFoundError(f"❌ .env file not found at: {env_path}")
-
-load_dotenv(env_path)
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME")
-
-# ─────────────────────────────
-# 3️⃣  Auto-detect host IP (for WSL bridge)
-# ─────────────────────────────
-if platform.system() != "Windows":
-    try:
-        route_output = subprocess.check_output("ip route | grep default", shell=True).decode()
-        wsl_host_ip = route_output.split("via")[1].split()[0].strip()
-        DB_HOST = DB_HOST or wsl_host_ip
-        print(f"🌐 Running in WSL — using Windows host IP: {DB_HOST}")
-    except Exception as e:
-        print(f"⚠️ Could not auto-detect Windows host IP: {e}")
-else:
-    DB_HOST = DB_HOST or "localhost"
-
-# ─────────────────────────────
-# 4️⃣  PostgreSQL connection
+# 2️⃣  PostgreSQL connection
 # ─────────────────────────────
 engine = None
 if all([DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]):

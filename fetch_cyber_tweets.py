@@ -5,13 +5,13 @@
 
 import os
 import sys
-import platform
 import tweepy
 import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine, Table, Column, Integer, BigInteger, Text, DateTime, MetaData
 from sqlalchemy.dialects.postgresql import insert
-from dotenv import load_dotenv
+
+from config import DATA_DIR, DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, BEARER_TOKEN
 
 
 # ──────────────────────────────────────────────
@@ -22,36 +22,9 @@ def log(msg: str):
 
 
 # ──────────────────────────────────────────────
-# 2️⃣ Cross-Platform Base Directory
+# 2️⃣ Data Directory
 # ──────────────────────────────────────────────
-if platform.system() == "Windows":
-    BASE_DIR = r"C:\Users\vishn\Downloads\Shift\Programming\code+lab\SocialMedia_Threat_Intel"
-else:
-    BASE_DIR = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel"
-
-DATA_DIR = os.path.join(BASE_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
-
-
-# ──────────────────────────────────────────────
-# 3️⃣ Load Environment Variables
-# ──────────────────────────────────────────────
-env_path = os.path.join(BASE_DIR, ".env")
-load_dotenv(env_path)
-
-BEARER_TOKEN = os.getenv("BEARER_TOKEN")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-
-# Auto-resolve DB host for Windows vs WSL
-if not DB_HOST or DB_HOST.strip() == "":
-    if platform.system() == "Windows":
-        DB_HOST = "localhost"
-    else:
-        DB_HOST = "172.23.240.1"  # Windows host IP for WSL networking
 
 if not BEARER_TOKEN:
     raise ValueError("❌ Missing BEARER_TOKEN in .env file.")

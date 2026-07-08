@@ -1,39 +1,18 @@
-import os, re, sys, platform, pandas as pd
+import os, re, sys, pandas as pd
 from sqlalchemy import create_engine, text
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
+
+from config import PROJECT_ROOT, OUTPUT_DIR, DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME, OPENROUTER_API_KEY, OPENAI_API_BASE
 
 # ╭──────────────────────────────────────────────╮
 # │ 1️⃣  Environment Setup                       │
 # ╰──────────────────────────────────────────────╯
-if platform.system() == "Windows":
-    BASE_DIR = r"C:\Users\vishn\Downloads\Shift\Programming\code+lab\SocialMedia_Threat_Intel"
-else:
-    BASE_DIR = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel"
-
-load_dotenv(os.path.join(BASE_DIR, ".env"))
-
-DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME = (
-    os.getenv("DB_USER"), os.getenv("DB_PASS"),
-    os.getenv("DB_HOST") or "localhost", os.getenv("DB_PORT"), os.getenv("DB_NAME")
-)
-
-# Auto-detect Windows host IP for WSL bridge
-if platform.system() != "Windows" and DB_HOST in ["localhost", "127.0.0.1", "", None]:
-    import subprocess
-    try:
-        route_output = subprocess.check_output("ip route | grep default", shell=True).decode()
-        DB_HOST = route_output.split("via")[1].split()[0].strip()
-        print(f"🌐 Running in WSL — using Windows host IP: {DB_HOST}")
-    except Exception as e:
-        print(f"⚠️ Could not auto-detect Windows host IP: {e}")
-
 engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 print(f"🔗 Connected to PostgreSQL at {DB_HOST}:{DB_PORT}")
 
-OUTPUT_FILE = os.path.join(BASE_DIR, "outputs", "threat_daily_summary.txt")
-os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+OUTPUT_FILE = OUTPUT_DIR / "threat_daily_summary.txt"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ╭──────────────────────────────────────────────╮
 # │ 2️⃣  Load classified data                     │
@@ -65,7 +44,7 @@ try:
 except Exception as e:
     print(f"⚠️ Table not found or SQL error: {e}")
     print("🔄 Falling back to local CSV...")
-    hf_csv = os.path.join(BASE_DIR, "outputs", "cyber_tweets_hf_results.csv")
+    hf_csv = OUTPUT_DIR / "cyber_tweets_hf_results.csv"
     if not os.path.exists(hf_csv):
         print(f"❌ CSV not found at {hf_csv}")
         sys.exit(1)
@@ -119,7 +98,7 @@ print(f"✂️ Created {len(chunks)} text chunks for summarization.")
 # ╭──────────────────────────────────────────────╮
 # │ 5️⃣  Initialize OpenRouter LLM               │
 # ╰──────────────────────────────────────────────╯
-API_KEY, API_BASE = os.getenv("OPENROUTER_API_KEY"), os.getenv("OPENAI_API_BASE")
+API_KEY, API_BASE = OPENROUTER_API_KEY, OPENAI_API_BASE
 if not API_KEY or not API_BASE:
     print("❌ Missing OpenRouter credentials.")
     sys.exit(1)

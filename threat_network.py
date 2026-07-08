@@ -1,49 +1,20 @@
 import os
 import re
-import platform
 import pandas as pd
 import networkx as nx
-import subprocess
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
+
+from config import OUTPUT_DIR, DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME
 
 # ╭──────────────────────────────────────────────╮
-# │ 1️⃣  Cross-platform base paths               │
+# │ 1️⃣  Output directories                      │
 # ╰──────────────────────────────────────────────╯
-if platform.system() == "Windows":
-    BASE_DIR = r"C:\Users\vishn\Downloads\Shift\Programming\code+lab\SocialMedia_Threat_Intel"
-else:
-    BASE_DIR = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel"
-
-OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
-NETWORK_DIR = os.path.join(OUTPUT_DIR, "network")
+NETWORK_DIR = OUTPUT_DIR / "network"
 os.makedirs(NETWORK_DIR, exist_ok=True)
 
 # ╭──────────────────────────────────────────────╮
-# │ 2️⃣  Environment + DB connection setup        │
+# │ 2️⃣  DB connection                           │
 # ╰──────────────────────────────────────────────╯
-env_path = os.path.join(BASE_DIR, ".env")
-if not os.path.exists(env_path):
-    raise FileNotFoundError(f"❌ .env file not found at {env_path}")
-
-load_dotenv(env_path)
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME")
-
-# Auto-detect host IP when running inside WSL
-if platform.system() != "Windows" and (not DB_HOST or DB_HOST in ["localhost", "127.0.0.1"]):
-    try:
-        route_output = subprocess.check_output("ip route | grep default", shell=True).decode()
-        wsl_host_ip = route_output.split("via")[1].split()[0].strip()
-        DB_HOST = wsl_host_ip
-        print(f"🌐 Running in WSL — using host IP: {DB_HOST}")
-    except Exception as e:
-        print(f"⚠️ Could not auto-detect host IP: {e}")
-
-# Connect to PostgreSQL
 ENGINE = None
 if all([DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]):
     ENGINE = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")

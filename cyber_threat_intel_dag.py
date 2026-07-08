@@ -3,19 +3,15 @@
 # =====================================================
 
 import os
-import platform
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
 # ───────────────────────────────────────────────
-# 1️⃣ Cross-platform path setup
+# 1️⃣ Project root (resolved relative to this file)
 # ───────────────────────────────────────────────
-if platform.system() == "Windows":
-    PROJECT_DIR = r"C:\Users\vishn\Downloads\Shift\Programming\code+lab\SocialMedia_Threat_Intel"
-else:
-    PROJECT_DIR = "/mnt/c/Users/vishn/Downloads/Shift/Programming/code+lab/SocialMedia_Threat_Intel"
-
+from pathlib import Path
+PROJECT_DIR = Path(__file__).resolve().parent
 SCRIPTS_DIR = PROJECT_DIR  # all scripts are in main folder
 
 # ───────────────────────────────────────────────
